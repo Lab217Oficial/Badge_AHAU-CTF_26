@@ -1,0 +1,75 @@
+====================================================================
+  AHAU CTF Badge - Firmware ESP32-S3 SuperMini
+  Guia de flasheo FACIL
+====================================================================
+
+Placa:        ESP32-S3 (SuperMini / Dev Module)
+Flash:        4 MB
+Firmware:     wifi_monitor (WiFi | Arcoiris | Morse | Juego |
+              Escaner WiFi | Escaner BLE | AP)
+
+--------------------------------------------------------------------
+  OPCION A - LA MAS FACIL: Web flasher de Spacehuhn (sin instalar nada)
+--------------------------------------------------------------------
+1. Conecta el badge al PC por USB-C.
+2. Abre en Chrome o Edge (NO Firefox ni Safari):
+        https://esptool.spacehuhn.com/
+3. Pulsa "Connect" (arriba a la derecha).
+   - Elige el puerto que aparece (USB Serial / JTAG / CDC).
+   - Si no aparece ningun puerto: manten pulsado BOOT, toca RESET,
+     suelta BOOT, y vuelve a pulsar "Connect".
+4. Ya conectado, aparece una fila con un selector de archivo y una
+   direccion (Offset). Configura UNA sola fila asi:
+
+        Offset:  0x0
+        Archivo: firmware/wifi_monitor.ino.merged.bin
+
+   (Borra/ignora las demas filas. Si el offset viene como 0x1000,
+    cambialo a 0x0.)
+5. Pulsa "Program". Espera la barra al 100% y luego pulsa RESET.
+
+   ¡Listo! Ese unico archivo .merged.bin lleva TODO
+   (bootloader + particiones + app) en la direccion 0x0.
+
+   NOTA: si prefieres flashear por partes en Spacehuhn, anade 4 filas
+   con estos offsets (mismo resultado que el merged):
+        0x0      firmware/wifi_monitor.ino.bootloader.bin
+        0x8000   firmware/wifi_monitor.ino.partitions.bin
+        0xe000   firmware/boot_app0.bin
+        0x10000  firmware/wifi_monitor.ino.bin
+
+--------------------------------------------------------------------
+  OPCION B - Script automatico (Windows / Linux / Mac)
+--------------------------------------------------------------------
+Requisito unico: tener Python instalado.
+Los scripts instalan esptool solo si hace falta.
+
+  Windows:  doble clic en  flash_windows.bat
+  Linux/Mac: en terminal ->  ./flash_unix.sh
+
+Si tu placa no se detecta sola, entra en modo descarga:
+manten pulsado BOOT, toca RESET, suelta BOOT; y vuelve a intentar.
+
+--------------------------------------------------------------------
+  OPCION C - Comando manual (usuarios avanzados)
+--------------------------------------------------------------------
+Instala esptool:   pip install esptool
+
+Flasheo de UN solo archivo (recomendado):
+  esptool --chip esp32s3 -b 921600 write_flash 0x0 firmware/wifi_monitor.ino.merged.bin
+
+Flasheo por partes (equivalente, si el merged falla):
+  esptool --chip esp32s3 -b 921600 write_flash \
+      0x0     firmware/wifi_monitor.ino.bootloader.bin \
+      0x8000  firmware/wifi_monitor.ino.partitions.bin \
+      0xe000  firmware/boot_app0.bin \
+      0x10000 firmware/wifi_monitor.ino.bin
+
+--------------------------------------------------------------------
+  Problemas comunes
+--------------------------------------------------------------------
+* No aparece el puerto -> usa un cable USB-C de DATOS (no de solo carga).
+* "Failed to connect" -> entra en modo descarga (BOOT + RESET).
+* Windows sin driver -> instala driver CP210x o CH340 segun tu placa.
+* Tras flashear no arranca -> pulsa RESET una vez.
+====================================================================

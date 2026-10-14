@@ -1,0 +1,19 @@
+# Artefactos de compilación de Arduino / ESP32
+build/
+*.elf
+*.map
+*.o
+*.a
+
+# EasyEDA / fabricación (archivos temporales)
+*.lck
+~$*
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
